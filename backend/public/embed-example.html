@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentHub Embed Example</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 800px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #1f2937;
+            margin-bottom: 16px;
+            font-size: 32px;
+        }
+
+        p {
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .code-block {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 20px 0;
+        }
+
+        .code-block code {
+            display: block;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 32px;
+        }
+
+        .feature {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .feature h3 {
+            color: #1f2937;
+            margin: 0 0 8px 0;
+            font-size: 18px;
+        }
+
+        .feature p {
+            color: #6b7280;
+            font-size: 14px;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 AgentHub Embed SDK</h1>
+        <p>
+            This page demonstrates how to embed an AI agent into any website using the AgentHub Embed SDK.
+            Click the chat button in the bottom-right corner to start a conversation!
+        </p>
+
+        <h2>How to Use</h2>
+        <p>Add the following code to your website:</p>
+
+        <div class="code-block">
+            <code>&lt;!-- 1. Include the AgentHub Embed SDK --&gt;
+&lt;script src="https://your-domain.com/embed.js"&gt;&lt;/script&gt;
+
+&lt;!-- 2. Initialize the chat widget --&gt;
+&lt;script&gt;
+  AgentHub.init({
+    shareToken: 'your-share-token',
+    position: 'bottom-right',
+    theme: 'light',
+    width: 400,
+    height: 600,
+    title: 'AI Assistant',
+    welcomeMessage: 'Hello! How can I help you today?',
+    primaryColor: '#3b82f6',
+  });
+&lt;/script&gt;</code>
+        </div>
+
+        <h2>Configuration Options</h2>
+        <div class="features">
+            <div class="feature">
+                <h3>📍 Position</h3>
+                <p>Choose where the chat widget appears: bottom-right, bottom-left, top-right, or top-left</p>
+            </div>
+            <div class="feature">
+                <h3>🎨 Theme</h3>
+                <p>Light or dark theme to match your website's design</p>
+            </div>
+            <div class="feature">
+                <h3>📏 Custom Size</h3>
+                <p>Adjust the width and height of the chat window</p>
+            </div>
+            <div class="feature">
+                <h3>🎯 Branding</h3>
+                <p>Customize title, colors, and avatar to match your brand</p>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <h3>💬 Welcome Message</h3>
+                <p>Set a custom greeting message for new visitors</p>
+            </div>
+            <div class="feature">
+                <h3>🔗 Auto Open</h3>
+                <p>Automatically open the chat when the page loads</p>
+            </div>
+            <div class="feature">
+                <h3>📎 Attachments</h3>
+                <p>Allow users to attach files to their messages</p>
+            </div>
+            <div class="feature">
+                <h3>📊 Analytics</h3>
+                <p>Track conversations and visitor information</p>
+            </div>
+        </div>
+
+        <h2>Advanced Usage</h2>
+        <p>You can also programmatically control the chat widget:</p>
+
+        <div class="code-block">
+            <code>&lt;script&gt;
+  // Get the embed instance
+  const embed = AgentHub.init({
+    shareToken: 'your-share-token',
+  });
+
+  // Open the chat programmatically
+  embed.open();
+
+  // Close the chat
+  embed.close();
+
+  // Toggle the chat
+  embed.toggle();
+
+  // Update configuration
+  embed.updateConfig({
+    title: 'Updated Title',
+    theme: 'dark',
+  });
+
+  // Destroy the widget
+  embed.destroy();
+&lt;/script&gt;</code>
+        </div>
+
+        <p style="margin-top: 32px; font-size: 14px; color: #9ca3af;">
+            Note: Replace 'your-share-token' with your actual agent's share token and 'https://your-domain.com' with your API base URL.
+        </p>
+    </div>
+
+    <!-- AgentHub Embed SDK -->
+    <script src="embed.js"></script>
+    <script>
+        // Initialize the chat widget
+        // Replace 'demo-share-token' with your actual share token
+        AgentHub.init({
+            shareToken: 'demo-share-token',
+            position: 'bottom-right',
+            theme: 'light',
+            width: 400,
+            height: 600,
+            title: 'AI Assistant',
+            welcomeMessage: 'Hello! I\'m your AI assistant. How can I help you today?',
+            primaryColor: '#667eea',
+            autoOpen: false,
+            showHeader: true,
+            showFooter: true,
+        });
+    </script>
+</body>
+</html>
