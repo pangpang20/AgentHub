@@ -1,0 +1,253 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  passwordHash    String
+  name            String
+  avatarUrl       String?
+  isEmailVerified Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  lastLoginAt     DateTime?
+
+  // Relations
+  agents          Agent[]
+  conversations   Conversation[]
+  userRoles       UserRole[]
+  auditLogs       AuditLog[]
+
+  @@map("users")
+}
+
+// Role model
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  permissions Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  userRoles   UserRole[]
+
+  @@map("roles")
+}
+
+// UserRole junction table
+model UserRole {
+  userId      String   @default(uuid())
+  roleId      String   @default(uuid())
+  assignedAt  DateTime @default(now())
+  assignedBy  String?
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role        Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+// Agent model
+model Agent {
+  id              String    @id @default(uuid())
+  userId          String
+  name            String
+  description     String?
+  systemPrompt    String    @db.Text
+  llmProvider     String
+  llmModel        String
+  llmTemperature  Float     @default(0.7)
+  llmMaxTokens    Int       @default(4096)
+  isPublic        Boolean   @default(false)
+  shareToken      String?   @unique
+  templateId      String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversations   Conversation[]
+  knowledgeBase   KnowledgeBase?
+  agentPlugins    AgentPlugin[]
+
+  @@index([userId])
+  @@index([isPublic])
+  @@map("agents")
+}
+
+// Conversation model
+model Conversation {
+  id           String   @id @default(uuid())
+  agentId      String
+  userId       String
+  title        String?
+  status       String   @default("active")
+  messageCount Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  agent        Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages     Message[]
+
+  @@index([agentId, userId])
+  @@index([userId])
+  @@index([status])
+  @@map("conversations")
+}
+
+// Message model
+model Message {
+  id             String    @id @default(uuid())
+  conversationId String
+  role           String
+  content        String    @db.Text
+  tokens         Int?
+  metadata       Json?
+  createdAt      DateTime  @default(now())
+
+  // Relations
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@map("messages")
+}
+
+// KnowledgeBase model
+model KnowledgeBase {
+  id            String     @id @default(uuid())
+  agentId       String     @unique
+  documentCount Int        @default(0)
+  totalChunks   Int        @default(0)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  // Relations
+  agent         Agent      @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  documents     Document[]
+
+  @@map("knowledge_bases")
+}
+
+// Document model
+model Document {
+  id              String   @id @default(uuid())
+  knowledgeBaseId String
+  fileName        String
+  fileSize        Int
+  fileType        String
+  content         String?  @db.Text
+  url             String?
+  chunkCount      Int      @default(0)
+  status          String   @default("pending")
+  errorMessage    String?
+  metadata        Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  knowledgeBase   KnowledgeBase @relation(fields: [knowledgeBaseId], references: [id], onDelete: Cascade)
+
+  @@index([knowledgeBaseId])
+  @@index([status])
+  @@map("documents")
+}
+
+// Plugin model
+model Plugin {
+  id            String   @id @default(uuid())
+  name          String
+  version       String
+  description   String
+  author        String
+  iconUrl       String?
+  capabilities  Json
+  permissions   Json
+  isOfficial    Boolean  @default(false)
+  isVerified    Boolean  @default(false)
+  downloadCount Int      @default(0)
+  rating        Float    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  agentPlugins  AgentPlugin[]
+
+  @@unique([name, version])
+  @@index([isOfficial])
+  @@map("plugins")
+}
+
+// AgentPlugin junction table
+model AgentPlugin {
+  agentId    String   @default(uuid())
+  pluginId   String   @default(uuid())
+  config     Json?
+  isEnabled  Boolean  @default(true)
+  installedAt DateTime @default(now())
+
+  // Relations
+  agent      Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  plugin     Plugin   @relation(fields: [pluginId], references: [id], onDelete: Cascade)
+
+  @@id([agentId, pluginId])
+  @@map("agent_plugins")
+}
+
+// Template model
+model Template {
+  id             String   @id @default(uuid())
+  name           String   @unique
+  description    String
+  category       String
+  iconUrl        String?
+  systemPrompt   String   @db.Text
+  llmProvider    String
+  llmModel       String
+  defaultPlugins Json?
+  useCount       Int      @default(0)
+  isFeatured     Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([category])
+  @@index([isFeatured])
+  @@map("templates")
+}
+
+// AuditLog model
+model AuditLog {
+  id           String   @id @default(uuid())
+  userId       String?
+  action       String
+  resourceType String
+  resourceId   String?
+  ipAddress    String?
+  userAgent    String?
+  metadata     Json?
+  timestamp    DateTime @default(now())
+
+  // Relations
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([resourceType, resourceId])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
