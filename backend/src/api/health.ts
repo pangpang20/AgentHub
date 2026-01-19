@@ -16,6 +16,7 @@ export interface HealthCheckResponse {
     memory: NodeJS.MemoryUsage;
     cpu: NodeJS.CpuUsage;
   };
+  performance?: Record<string, unknown>;
 }
 
 export const healthCheck = async (req: Request, res: Response): Promise<void> => {
@@ -34,7 +35,7 @@ export const healthCheck = async (req: Request, res: Response): Promise<void> =>
     // Check database connection
     await prisma.$queryRaw`SELECT 1`;
     health.services.database = 'healthy';
-  } catch (error) {
+  } catch {
     health.status = 'unhealthy';
     health.services.database = 'unhealthy';
   }
@@ -43,7 +44,7 @@ export const healthCheck = async (req: Request, res: Response): Promise<void> =>
     // Check Redis connection
     await redis.ping();
     health.services.redis = 'healthy';
-  } catch (error) {
+  } catch {
     health.status = 'unhealthy';
     health.services.redis = 'unhealthy';
   }
@@ -60,7 +61,7 @@ export const healthCheck = async (req: Request, res: Response): Promise<void> =>
   if (req.query.performance === 'true') {
     const perfMetrics = PerformanceMonitor.getAllMetrics();
     if (Object.keys(perfMetrics).length > 0) {
-      (health as any).performance = perfMetrics;
+      health.performance = perfMetrics;
     }
   }
 
@@ -77,7 +78,7 @@ export const readinessCheck = async (_req: Request, res: Response): Promise<void
   try {
     // Check if database is ready
     await prisma.$queryRaw`SELECT 1`;
-  } catch (error) {
+  } catch {
     ready.ready = false;
     res.status(503).json(ready);
     return;
@@ -86,7 +87,7 @@ export const readinessCheck = async (_req: Request, res: Response): Promise<void
   try {
     // Check if Redis is ready
     await redis.ping();
-  } catch (error) {
+  } catch {
     ready.ready = false;
     res.status(503).json(ready);
     return;

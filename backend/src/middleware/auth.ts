@@ -51,7 +51,7 @@ export const authenticate = async (
 
       req.user = user;
       next();
-    } catch (jwtError) {
+    } catch {
       res.status(401).json({
         error: 'Unauthorized',
         message: 'Invalid or expired token',
@@ -99,12 +99,12 @@ export const optionalAuth = async (
       if (user) {
         req.user = user;
       }
-    } catch (jwtError) {
+    } catch {
       // Ignore token errors for optional auth
     }
 
     next();
-  } catch (error) {
+  } catch {
     next();
   }
 };
