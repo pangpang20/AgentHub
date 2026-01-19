@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+﻿name: CI/CD Pipeline
 
 on:
   push:
@@ -13,7 +13,6 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -22,8 +21,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
       - name: Install dependencies (backend)
         run: |
           cd backend
@@ -48,7 +45,6 @@ jobs:
     name: Test Backend
     runs-on: ubuntu-latest
     needs: lint
-    
     services:
       postgres:
         image: postgres:15-alpine
@@ -82,8 +78,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
       - name: Install dependencies
         run: |
           cd backend
@@ -124,7 +118,6 @@ jobs:
     name: Test Frontend
     runs-on: ubuntu-latest
     needs: lint
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -133,8 +126,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
       - name: Install dependencies
         run: |
           cd frontend
@@ -167,7 +158,6 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     needs: [test-backend, test-frontend]
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -176,8 +166,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
       - name: Build backend
         run: |
           cd backend
@@ -207,7 +195,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     if: github.ref == 'refs/heads/develop'
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -230,7 +217,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     if: github.ref == 'refs/heads/main'
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
