@@ -29,6 +29,7 @@ export default function AgentDetailPage({ params }: { params: { id: string } }) 
       setError('');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to load agent');
+    } finally {
       setLoading(false);
     }
   };

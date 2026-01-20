@@ -27,8 +27,6 @@ const createApp = () => {
     // CORS configuration - allow multiple origins for development
     const allowedOrigins = [
         'http://localhost:3000',
-        'http://localhost:3002',
-        'http://localhost:3003',
         config_1.default.frontendUrl,
     ];
     app.use((0, cors_1.default)({
