@@ -14,7 +14,7 @@ router.get('/marketplace', async (req, res, next) => {
     const search = req.query.search as string;
     const skip = (page - 1) * limit;
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       isPublic: true,
     };
 
@@ -84,8 +84,8 @@ router.get('/', authenticate, async (req: AuthRequest, res, next) => {
     });
 
     res.json({
-      data: installedPlugins.map((ap) => ({
-        ...ap.plugin,
+      data: installedPlugins.map((ap: { plugin: unknown; config: unknown; isEnabled: boolean }) => ({
+        ...(ap.plugin as Record<string, unknown>),
         config: ap.config,
         enabled: ap.isEnabled,
       })),

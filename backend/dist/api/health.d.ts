@@ -12,6 +12,7 @@ export interface HealthCheckResponse {
         memory: NodeJS.MemoryUsage;
         cpu: NodeJS.CpuUsage;
     };
+    performance?: Record<string, unknown>;
 }
 export declare const healthCheck: (req: Request, res: Response) => Promise<void>;
 export declare const readinessCheck: (_req: Request, res: Response) => Promise<void>;

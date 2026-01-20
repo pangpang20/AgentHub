@@ -42,7 +42,7 @@ router.get('/agent/:shareToken', async (req, res, next) => {
 // Create a new conversation for embedded agent
 router.post('/conversations', async (req, res, next) => {
   try {
-    const { shareToken, sessionId, visitorInfo } = req.body;
+    const { shareToken, sessionId } = req.body;
 
     if (!shareToken) {
       throw new AppError('Share token is required', 400, 'MISSING_SHARE_TOKEN');
@@ -67,12 +67,6 @@ router.post('/conversations', async (req, res, next) => {
         agentId: agent.id,
         userId: agent.userId, // Use agent owner as user for embedded conversations
         title: `Embedded Chat - ${sessionId || 'Unknown'}`,
-        metadata: {
-          source: 'embed',
-          sessionId,
-          visitorInfo,
-          createdAt: new Date().toISOString(),
-        },
       },
     });
 

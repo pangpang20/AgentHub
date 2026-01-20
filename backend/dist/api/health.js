@@ -23,7 +23,7 @@ const healthCheck = async (req, res) => {
         await database_1.default.$queryRaw `SELECT 1`;
         health.services.database = 'healthy';
     }
-    catch (error) {
+    catch {
         health.status = 'unhealthy';
         health.services.database = 'unhealthy';
     }
@@ -32,7 +32,7 @@ const healthCheck = async (req, res) => {
         await redis_1.default.ping();
         health.services.redis = 'healthy';
     }
-    catch (error) {
+    catch {
         health.status = 'unhealthy';
         health.services.redis = 'unhealthy';
     }
@@ -63,7 +63,7 @@ const readinessCheck = async (_req, res) => {
         // Check if database is ready
         await database_1.default.$queryRaw `SELECT 1`;
     }
-    catch (error) {
+    catch {
         ready.ready = false;
         res.status(503).json(ready);
         return;
@@ -72,7 +72,7 @@ const readinessCheck = async (_req, res) => {
         // Check if Redis is ready
         await redis_1.default.ping();
     }
-    catch (error) {
+    catch {
         ready.ready = false;
         res.status(503).json(ready);
         return;

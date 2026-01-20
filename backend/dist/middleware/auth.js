@@ -36,7 +36,7 @@ const authenticate = async (req, res, next) => {
             req.user = user;
             next();
         }
-        catch (jwtError) {
+        catch {
             res.status(401).json({
                 error: 'Unauthorized',
                 message: 'Invalid or expired token',
@@ -74,12 +74,12 @@ const optionalAuth = async (req, _res, next) => {
                 req.user = user;
             }
         }
-        catch (jwtError) {
+        catch {
             // Ignore token errors for optional auth
         }
         next();
     }
-    catch (error) {
+    catch {
         next();
     }
 };
