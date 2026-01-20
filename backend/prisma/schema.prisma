@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -76,7 +76,7 @@ model Agent {
   shareToken      String?   @unique
   templateId      String?
   createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  updatedAt       DateTime @updatedAt
 
   // Relations
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -158,7 +158,7 @@ model Document {
   errorMessage    String?
   metadata        Json?
   createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  updatedAt       DateTime   @updatedAt
 
   // Relations
   knowledgeBase   KnowledgeBase @relation(fields: [knowledgeBaseId], references: [id], onDelete: Cascade)
@@ -183,7 +183,7 @@ model Plugin {
   downloadCount Int      @default(0)
   rating        Float    @default(0)
   createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  updatedAt     DateTime   @updatedAt
 
   // Relations
   agentPlugins  AgentPlugin[]
@@ -223,7 +223,7 @@ model Template {
   useCount       Int      @default(0)
   isFeatured     Boolean  @default(false)
   createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  updatedAt      DateTime   @updatedAt
 
   @@index([category])
   @@index([isFeatured])

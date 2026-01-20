@@ -19,6 +19,14 @@ export interface HealthCheckResponse {
   performance?: Record<string, unknown>;
 }
 
+// Helper function to add timeout to promises
+const withTimeout = <T>(promise: Promise<T>, timeoutMs: number, errorMessage: string): Promise<T> => {
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    setTimeout(() => reject(new Error(errorMessage)), timeoutMs);
+  });
+  return Promise.race([promise, timeoutPromise]);
+};
+
 export const healthCheck = async (req: Request, res: Response): Promise<void> => {
   const health: HealthCheckResponse = {
     status: 'healthy',
@@ -32,19 +40,19 @@ export const healthCheck = async (req: Request, res: Response): Promise<void> =>
   };
 
   try {
-    // Check database connection
-    await prisma.$queryRaw`SELECT 1`;
+    // Check database connection with timeout
+    await withTimeout(prisma.$queryRaw`SELECT 1`, 5000, 'Database connection timeout');
     health.services.database = 'healthy';
-  } catch {
+  } catch (error) {
     health.status = 'unhealthy';
     health.services.database = 'unhealthy';
   }
 
   try {
-    // Check Redis connection
-    await redis.ping();
+    // Check Redis connection with timeout
+    await withTimeout(redis.ping(), 3000, 'Redis connection timeout');
     health.services.redis = 'healthy';
-  } catch {
+  } catch (error) {
     health.status = 'unhealthy';
     health.services.redis = 'unhealthy';
   }
@@ -76,8 +84,8 @@ export const readinessCheck = async (_req: Request, res: Response): Promise<void
   };
 
   try {
-    // Check if database is ready
-    await prisma.$queryRaw`SELECT 1`;
+    // Check if database is ready with timeout
+    await withTimeout(prisma.$queryRaw`SELECT 1`, 5000, 'Database connection timeout');
   } catch {
     ready.ready = false;
     res.status(503).json(ready);
@@ -85,8 +93,8 @@ export const readinessCheck = async (_req: Request, res: Response): Promise<void
   }
 
   try {
-    // Check if Redis is ready
-    await redis.ping();
+    // Check if Redis is ready with timeout
+    await withTimeout(redis.ping(), 3000, 'Redis connection timeout');
   } catch {
     ready.ready = false;
     res.status(503).json(ready);

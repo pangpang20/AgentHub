@@ -7,6 +7,13 @@ exports.livenessCheck = exports.readinessCheck = exports.healthCheck = void 0;
 const database_1 = __importDefault(require("../config/database"));
 const redis_1 = __importDefault(require("../config/redis"));
 const performance_1 = __importDefault(require("../services/performance"));
+// Helper function to add timeout to promises
+const withTimeout = (promise, timeoutMs, errorMessage) => {
+    const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error(errorMessage)), timeoutMs);
+    });
+    return Promise.race([promise, timeoutPromise]);
+};
 const healthCheck = async (req, res) => {
     const health = {
         status: 'healthy',
@@ -19,20 +26,20 @@ const healthCheck = async (req, res) => {
         },
     };
     try {
-        // Check database connection
-        await database_1.default.$queryRaw `SELECT 1`;
+        // Check database connection with timeout
+        await withTimeout(database_1.default.$queryRaw `SELECT 1`, 5000, 'Database connection timeout');
         health.services.database = 'healthy';
     }
-    catch {
+    catch (error) {
         health.status = 'unhealthy';
         health.services.database = 'unhealthy';
     }
     try {
-        // Check Redis connection
-        await redis_1.default.ping();
+        // Check Redis connection with timeout
+        await withTimeout(redis_1.default.ping(), 3000, 'Redis connection timeout');
         health.services.redis = 'healthy';
     }
-    catch {
+    catch (error) {
         health.status = 'unhealthy';
         health.services.redis = 'unhealthy';
     }
@@ -60,8 +67,8 @@ const readinessCheck = async (_req, res) => {
         timestamp: new Date().toISOString(),
     };
     try {
-        // Check if database is ready
-        await database_1.default.$queryRaw `SELECT 1`;
+        // Check if database is ready with timeout
+        await withTimeout(database_1.default.$queryRaw `SELECT 1`, 5000, 'Database connection timeout');
     }
     catch {
         ready.ready = false;
@@ -69,8 +76,8 @@ const readinessCheck = async (_req, res) => {
         return;
     }
     try {
-        // Check if Redis is ready
-        await redis_1.default.ping();
+        // Check if Redis is ready with timeout
+        await withTimeout(redis_1.default.ping(), 3000, 'Redis connection timeout');
     }
     catch {
         ready.ready = false;

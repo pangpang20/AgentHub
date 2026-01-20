@@ -62,10 +62,14 @@ const createApp = (): Application => {
 
 const startServer = async (): Promise<void> => {
   try {
+    console.log('Starting server...');
+    console.log('Connecting to Redis...');
     // Connect to Redis
     await connectRedis();
+    console.log('Redis connection completed');
 
     const app = createApp();
+    console.log('Express app created');
 
     app.listen(config.port, () => {
       console.log(`🚀 Server is running on port ${config.port}`);

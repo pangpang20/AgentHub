@@ -56,9 +56,13 @@ const createApp = () => {
 exports.createApp = createApp;
 const startServer = async () => {
     try {
+        console.log('Starting server...');
+        console.log('Connecting to Redis...');
         // Connect to Redis
         await (0, redis_1.connectRedis)();
+        console.log('Redis connection completed');
         const app = createApp();
+        console.log('Express app created');
         app.listen(config_1.default.port, () => {
             console.log(`🚀 Server is running on port ${config_1.default.port}`);
             console.log(`📝 Environment: ${config_1.default.nodeEnv}`);
