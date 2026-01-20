@@ -21,10 +21,26 @@ const createApp = (): Application => {
   // Security middleware
   app.use(helmet());
 
-  // CORS configuration
+  // CORS configuration - allow multiple origins for development
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:3002',
+    'http://localhost:3003',
+    config.frontendUrl,
+  ];
+
   app.use(
     cors({
-      origin: config.frontendUrl,
+      origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
       credentials: true,
     })
   );

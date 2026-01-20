@@ -24,9 +24,25 @@ const createApp = () => {
     const app = (0, express_1.default)();
     // Security middleware
     app.use((0, helmet_1.default)());
-    // CORS configuration
+    // CORS configuration - allow multiple origins for development
+    const allowedOrigins = [
+        'http://localhost:3000',
+        'http://localhost:3002',
+        'http://localhost:3003',
+        config_1.default.frontendUrl,
+    ];
     app.use((0, cors_1.default)({
-        origin: config_1.default.frontendUrl,
+        origin: (origin, callback) => {
+            // Allow requests with no origin (like mobile apps or curl requests)
+            if (!origin)
+                return callback(null, true);
+            if (allowedOrigins.includes(origin)) {
+                callback(null, true);
+            }
+            else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
         credentials: true,
     }));
     // Body parsing middleware
