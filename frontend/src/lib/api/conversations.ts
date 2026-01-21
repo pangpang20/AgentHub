@@ -65,6 +65,11 @@ export const conversationsApi = {
     return response.data;
   },
 
+  get: async (id: string): Promise<Conversation> => {
+    const response = await apiClient.get(`/conversations/${id}`);
+    return response.data;
+  },
+
   getMessages: async (
     conversationId: string,
     params?: { page?: number; limit?: number }

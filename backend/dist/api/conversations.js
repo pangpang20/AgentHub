@@ -57,6 +57,34 @@ router.get('/', auth_1.authenticate, async (req, res, next) => {
         next(error);
     }
 });
+// Get a specific conversation
+router.get('/:id', auth_1.authenticate, async (req, res, next) => {
+    try {
+        const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+        const conversation = await database_1.default.conversation.findFirst({
+            where: {
+                id,
+                userId: req.user.id,
+            },
+            include: {
+                agent: {
+                    select: {
+                        id: true,
+                        name: true,
+                        llmProvider: true,
+                    },
+                },
+            },
+        });
+        if (!conversation) {
+            throw new error_1.AppError('Conversation not found', 404, 'CONVERSATION_NOT_FOUND');
+        }
+        res.json(conversation);
+    }
+    catch (error) {
+        next(error);
+    }
+});
 // Get messages in a conversation
 router.get('/:conversationId/messages', auth_1.authenticate, async (req, res, next) => {
     try {

@@ -59,6 +59,37 @@ router.get('/', authenticate, async (req: AuthRequest, res, next) => {
   }
 });
 
+// Get a specific conversation
+router.get('/:id', authenticate, async (req: AuthRequest, res, next) => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+
+    const conversation = await prisma.conversation.findFirst({
+      where: {
+        id,
+        userId: req.user!.id,
+      },
+      include: {
+        agent: {
+          select: {
+            id: true,
+            name: true,
+            llmProvider: true,
+          },
+        },
+      },
+    });
+
+    if (!conversation) {
+      throw new AppError('Conversation not found', 404, 'CONVERSATION_NOT_FOUND');
+    }
+
+    res.json(conversation);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Get messages in a conversation
 router.get('/:conversationId/messages', authenticate, async (req: AuthRequest, res, next) => {
   try {
